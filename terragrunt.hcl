@@ -1,9 +1,10 @@
 locals {
   secret_vars = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
-  region_vars = find_in_parent_folders("region.hcl")
+  access_key = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
+  region_vars = find_in_parent_folders("/huaweicloud/non-prod/dev/sa-brazil-1/region.hcl")
 }
 
-# Generate an AWS provider block
+# Generate an Huaweicloud provider block
 generate "huaweicloud_provider" {
   path      = "huaweicloud_provider.tf"
   if_exists = "overwrite_terragrunt"
@@ -34,7 +35,7 @@ remote_state {
     bucket   = "${local.namespace}-${local.aws_region}-terraform-${local.account_id}"
     key      = "${path_relative_to_include()}/terraform.tfstate"
     region   = local.aws_region
-    endpoint = "https://obs.cn-north-1.myhuaweicloud.com"
+    endpoint = "https://obs.sa-brazil-1.myhuaweicloud.com"
 
     skip_region_validation      = true
     skip_credentials_validation = true

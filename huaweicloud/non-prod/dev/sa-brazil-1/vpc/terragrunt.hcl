@@ -11,7 +11,7 @@ locals {
 }
 
 terraform {
-  source = "https://github.com/empresamaneira/terraform-modules.git//hc_vpc?version=1.0.0"
+  source = "https://github.com/williank12/terraform-modules.git"
 }
 
 inputs = {
