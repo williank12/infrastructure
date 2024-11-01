@@ -1,7 +1,8 @@
 locals {
-  secret_vars = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
-  access_key = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
-  region_vars = find_in_parent_folders("/huaweicloud/non-prod/dev/sa-brazil-1/region.hcl")
+  # secret_vars = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.global.yaml")))
+  region_vars = read_terragrunt_config(find_in_parent_folders("region.hcl"))
+  huaweicloud_region = local.region_vars.locals.huaweicloud_region
+  bucket_name = "oneboxterraform"
 }
 
 # Generate an Huaweicloud provider block
@@ -10,20 +11,9 @@ generate "huaweicloud_provider" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 provider "huaweicloud" {
-  region     = ${local.region_vars.huaweicloud_region}
-  access_key = ${local.secret_vars.huaweicloud.access_key}
-  secret_key = ${local.secret_vars.huaweicloud.secret_key}
-}
-EOF
-}
-
-generate "gcp_provider" {
-  path      = "gcp_provider.tf"
-  if_exists = "overwrite_terragrunt"
-  contents  = <<EOF
-provider "gcp" {
-  project     = ${local.secret_vars.gcp.project}
-  region      = ${local.secret_vars.gcp.region}
+  region     = "${local.huaweicloud_region}"
+  access_key = ""
+  secret_key = ""
 }
 EOF
 }
@@ -32,14 +22,20 @@ EOF
 remote_state {
   backend = "s3"
   config = {
-    bucket   = "${local.namespace}-${local.aws_region}-terraform-${local.account_id}"
+    bucket   = "${local.bucket_name}"
     key      = "${path_relative_to_include()}/terraform.tfstate"
-    region   = local.aws_region
+    region   = local.huaweicloud_region
     endpoint = "https://obs.sa-brazil-1.myhuaweicloud.com"
+    # bucket   = "oneboxterraform"
+    # key      = "terraform.tfstate"
+    # region   = "us-east-1"
 
     skip_region_validation      = true
     skip_credentials_validation = true
     skip_metadata_api_check     = true
+    skip_bucket_root_access  = true
+    skip_bucket_enforced_tls = true
+    disable_bucket_update    = true
   }
 
   generate = {

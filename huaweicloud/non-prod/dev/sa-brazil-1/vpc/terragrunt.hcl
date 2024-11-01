@@ -5,33 +5,30 @@ include "root" {
 }
 
 locals {
-  region_vars = find_in_parent_folders("region.hcl")
-  account_vars = find_in_parent_folders("account.hcl")
-  env_vars = find_in_parent_folders("env.hcl")
+  region_vars = include.root.locals.region_vars.locals
+  # account_vars = find_in_parent_folders("account.hcl")
+  # env_vars = find_in_parent_folders("env.hcl")
 }
 
 terraform {
-  source = "https://github.com/williank12/terraform-modules.git"
+  # source = "https://github.com/williank12/terraform-modules.git//terraform-huaweicloud-vpc"
+  source = "https://github.com/terraform-huaweicloud-modules/terraform-huaweicloud-vpc"
 }
 
 inputs = {
-  vpc_name = "${local.hc_region}-${local.env_vars.env}"
-  vpc_cidr = "192.168.0.0/16"
+  vpc_name       = "${local.region_vars.name_definition}-vpc"
+  vpc_cidr_block = "172.16.0.0/16"
 
-  subnets = [
+  subnet_configuration = [
     {
-      name = "one"
-      cidr = "192.168.2.0/24"
-      gateway_ip = "192.168.2.1"
-      primary_dns = "100.125.1.250"
-      secondary_dns ="100.125.21.250"
+      name="${local.region_vars.name_definition}-subnet-pub",
+      cidr="172.16.66.0/24"
     },
     {
-      name = "two"
-      cidr = "192.168.3.0/24"
-      gateway_ip = "192.168.3.1"
-      primary_dns = "100.125.1.250"
-      secondary_dns ="100.125.21.250"
-    }
+      name="${local.region_vars.name_definition}-subnet-priv",
+      cidr="172.16.86.0/24"
+    },
   ]
+
+  is_security_group_create = false
 }

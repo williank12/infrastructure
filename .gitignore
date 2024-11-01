@@ -1,0 +1,43 @@
+secrets.yaml
+.terragrunt-cache
+
+# Ignorar arquivos e diretórios gerados pelo Terragrunt
+.terragrunt/
+.terraform/
+
+# Ignorar arquivos de log
+*.log
+
+# Ignorar arquivos de configuração sensíveis
+*.enc
+*.json
+
+# Ignorar arquivos de chave
+*.pem
+*.p12
+*.pfx
+*.key
+*.pub
+
+# Ignorar arquivos binários
+*.bin
+
+# Ignorar arquivos de compilação
+*.class
+*.jar
+*.war
+*.pyc
+*.pyo
+
+# Ignorar arquivos de cache
+*.cache
+*.lock
+
+# Ignorar arquivos temporários
+*.tmp
+*.swp
+*.swo
+
+# Ignorar pastas de dependências
+vendor/
+node_modules/
